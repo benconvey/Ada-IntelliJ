@@ -117,6 +117,8 @@
 		<!-- Ada code commenter -->
 		<lang.commenter language="Ada" implementationClass="com.adacore.adaintellij.misc.AdaCommenter"/>
 
+		<!-- Ada brace matcher -->
+		<lang.braceMatcher implementationClass="com.adacore.adaintellij.misc.AdaBraceMatcher" language="Ada" id="com.adacore.adaintellij.misc.AdaBraceMatcher" />
 		<!-- GPRbuild run configuration type -->
 		<configurationType implementation="com.adacore.adaintellij.build.GPRbuildConfigurationType"/>
 		<!-- GPRbuild configuration tool window -->
