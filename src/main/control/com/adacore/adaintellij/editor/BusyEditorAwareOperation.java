@@ -98,4 +98,7 @@ abstract class BusyEditorAwareOperation {
 	 */
 	void cleanUp() {}
 
+	public MergingUpdateQueue getQueue(){
+		return queue;
+	}
 }

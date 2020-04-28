@@ -124,7 +124,14 @@ public final class AdaLSPDriver implements ProjectComponent {
 		this.gprbuildConfigurationManager = gprbuildConfigurationManager;
 	}
 
-	/*
+	public static AdaLSPDriver getInstance(@NotNull Project project) {
+		return project.getComponent(AdaLSPDriver.class);
+	}
+
+	public DocumentChangeConsumerOperation getDocumentChangeOperation() {
+		return documentChangeOperation;
+	}
+/*
 		Project Component Open/Close Handlers
 	*/
 

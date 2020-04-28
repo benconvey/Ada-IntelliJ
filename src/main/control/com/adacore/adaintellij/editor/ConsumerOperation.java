@@ -3,6 +3,12 @@ package com.adacore.adaintellij.editor;
 import java.util.*;
 import java.util.function.Consumer;
 
+import com.adacore.adaintellij.Utils;
+import com.adacore.adaintellij.lsp.AdaLSPDriver;
+import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectCoreUtil;
+import com.intellij.psi.util.PsiUtilCore;
 import com.intellij.util.ui.update.Update;
 import org.jetbrains.annotations.NotNull;
 
@@ -90,10 +96,18 @@ public class ConsumerOperation<T> extends BusyEditorAwareOperation {
 
 			queue.queue(Update.create(this, () -> {
 
-				consumer.accept(scheduledValues);
+				Project project = ProjectCoreUtil.theOnlyOpenProject();
+				AdaLSPDriver driver = AdaLSPDriver.getInstance(project);
 
-				scheduledValues.clear();
-
+				synchronized (driver.getDocumentChangeOperation()) {
+					Logger logger = Logger.getInstance(Utils.class);
+					logger.warn("Updating ALS");
+					consumer.accept(scheduledValues);
+					scheduledValues.clear();
+					logger.warn("Notifying blocked threads");
+					driver.getDocumentChangeOperation().notifyAll();
+					logger.warn("Notified blocked threads");
+				}
 			}));
 
 		}

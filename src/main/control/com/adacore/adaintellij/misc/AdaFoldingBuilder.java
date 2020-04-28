@@ -1,5 +1,6 @@
 package com.adacore.adaintellij.misc;
 
+import com.adacore.adaintellij.Utils;
 import com.adacore.adaintellij.analysis.syntactic.AdaPsiElement;
 import com.adacore.adaintellij.lsp.AdaLSPDriver;
 import com.adacore.adaintellij.lsp.AdaLSPServer;
@@ -20,6 +21,7 @@ import org.eclipse.lsp4j.DocumentSymbol;
 import org.eclipse.lsp4j.FoldingRange;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.diagnostic.Logger;
 
 import java.util.*;
 
@@ -41,11 +43,29 @@ public class AdaFoldingBuilder extends FoldingBuilderEx implements DumbAware {
         this.document = document;
         this.root = root;
 
-        List<FoldingRange> foldingRanges = lspServer.foldingRange(psiFile.getVirtualFile().getUrl());
+        AdaLSPDriver driver = AdaLSPDriver.getInstance(this.project);
 
-        return foldingRangesHaveChanged(foldingRanges) ?
-            buildListOfFoldingDescriptors(foldingRanges) :
-            new FoldingDescriptor[0];
+        synchronized (driver.getDocumentChangeOperation()) {
+
+
+            Logger logger = Logger.getInstance(Utils.class);
+
+            try {
+
+                if(driver.getDocumentChangeOperation().getQueue().isFlushing() || ! driver.getDocumentChangeOperation().getQueue().isEmpty() ){
+
+                    logger.warn("Waiting");
+                    driver.getDocumentChangeOperation().wait();
+                }
+                logger.warn("Finished Waiting");
+                List<FoldingRange> foldingRanges = lspServer.foldingRange(psiFile.getVirtualFile().getUrl());
+
+                return buildListOfFoldingDescriptors(foldingRanges);
+            } catch (InterruptedException e ){
+                logger.warn("Interrupted Exception");
+                return new FoldingDescriptor[0];
+            }
+        }
     }
 
     private boolean foldingRangesHaveChanged(List<FoldingRange> foldingRanges){
