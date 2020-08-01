@@ -3,7 +3,10 @@ package com.adacore.adaintellij.editor;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.adacore.adaintellij.misc.cache.CacheKey;
+import com.adacore.adaintellij.misc.cache.Cacher;
 import com.intellij.codeInsight.folding.impl.CodeFoldingManagerImpl;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorFactory;
 import com.intellij.openapi.editor.event.*;
@@ -23,7 +26,7 @@ import com.adacore.adaintellij.Utils;
  * for the previous document, before the incoming event is processed.
  */
 public final class DocumentChangeConsumerOperation
-	extends ConsumerOperation<DocumentEvent>
+	extends ConsumerOperation<AdaDocumentEvent>
 {
 
 	/**
@@ -32,18 +35,35 @@ public final class DocumentChangeConsumerOperation
 	private static final EditorEventMulticaster EVENT_MULTICASTER =
 		EditorFactory.getInstance().getEventMulticaster();
 
+	public static final CacheKey<String> PREVIOUS_DOCUMENT_CONTENT_KEY = CacheKey.getNewKey();
+
 	/**
 	 * Document change listener for scheduling operation executions
 	 * on document changes.
 	 */
 	private DocumentListener documentListener = new AdaDocumentListener() {
 
+		@Override
+		public void beforeAdaDocumentChanged(@NotNull DocumentEvent event) {
+			Cacher.cacheData(
+				event.getDocument(),
+				PREVIOUS_DOCUMENT_CONTENT_KEY,
+				event.getDocument().getText()
+			);
+		}
+
 		/**
 		 * @see com.adacore.adaintellij.editor.AdaDocumentListener#adaDocumentChanged(DocumentEvent)
 		 */
 		@Override
 		public void adaDocumentChanged(@NotNull DocumentEvent event) {
-			schedule(event);
+			schedule(new AdaDocumentEvent(
+				event,
+				Cacher.getCachedData(
+					event.getDocument(),
+					PREVIOUS_DOCUMENT_CONTENT_KEY
+				).data
+			));
 		}
 
 	};
@@ -58,11 +78,11 @@ public final class DocumentChangeConsumerOperation
 	 */
 	DocumentChangeConsumerOperation(
 		@NotNull BusyEditorAwareScheduler      scheduler,
-		@NotNull Consumer<List<DocumentEvent>> consumer
+		@NotNull Consumer<List<AdaDocumentEvent>> consumer
 	) {
-		super(scheduler, consumer.andThen(new Consumer<List<DocumentEvent>>() {
+		super(scheduler, consumer.andThen(new Consumer<List<AdaDocumentEvent>>() {
 			@Override
-			public void accept(List<DocumentEvent> documentEvents) {
+			public void accept(List<AdaDocumentEvent> documentEvents) {
 
 				Editor editor = FileEditorManager
 					.getInstance(
@@ -89,7 +109,7 @@ public final class DocumentChangeConsumerOperation
 	 * @param event The document event to be consumed.
 	 */
 	@Override
-	public void schedule(@NotNull DocumentEvent event) {
+	public void schedule(@NotNull AdaDocumentEvent event) {
 
 		// If this operation is not active, then return
 
@@ -100,8 +120,8 @@ public final class DocumentChangeConsumerOperation
 		// the internal merging queue and clear the event list
 
 		if (!scheduledValues.isEmpty() && !Utils.documentsRepresentSameFile(
-			scheduledValues.get(0).getDocument(), event.getDocument()))
-		{
+			this.getScheduledDocument(), event.getDocumentEvent().getDocument())
+		){
 			queue.flush();
 			scheduledValues.clear();
 		}
@@ -110,6 +130,11 @@ public final class DocumentChangeConsumerOperation
 
 		super.schedule(event);
 
+	}
+
+	private Document getScheduledDocument()
+	{
+		return scheduledValues.get(0).getDocumentEvent().getDocument();
 	}
 
 	/**

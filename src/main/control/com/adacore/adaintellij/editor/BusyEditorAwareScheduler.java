@@ -188,7 +188,7 @@ public final class BusyEditorAwareScheduler implements ProjectComponent {
 	@Contract("_ -> new")
 	@NotNull
 	public DocumentChangeConsumerOperation createDocumentChangeOperation(
-		@NotNull Consumer<List<DocumentEvent>> consumer
+		@NotNull Consumer<List<AdaDocumentEvent>> consumer
 	) { return addAndReturn(new DocumentChangeConsumerOperation(this, consumer)); }
 
 	/**

@@ -41,7 +41,7 @@ public final class AdaLSPDriver implements ProjectComponent {
 	/**
 	 * The number of tolerable failed requests before an LSP session is terminated.
 	 */
-	static final int FAILURE_COUNT_THRESHOLD = 7;
+	static final int FAILURE_COUNT_THRESHOLD = 700;
 
 	/**
 	 * The interval duration, in milliseconds, before checking if the operation

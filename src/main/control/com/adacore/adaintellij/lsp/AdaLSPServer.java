@@ -5,13 +5,12 @@ import java.util.concurrent.*;
 import java.util.function.*;
 import java.util.stream.*;
 
+import com.adacore.adaintellij.editor.AdaDocumentEvent;
 import com.intellij.notification.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.progress.*;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.eclipse.lsp4j.services.TextDocumentService;
 import org.jetbrains.annotations.*;
 
 import org.eclipse.lsp4j.*;
@@ -427,7 +426,7 @@ public final class AdaLSPServer {
 	/**
 	 * @see org.eclipse.lsp4j.services.TextDocumentService#didChange(DidChangeTextDocumentParams)
 	 */
-	void didChange(@NotNull List<DocumentEvent> events) {
+	void didChange(@NotNull List<AdaDocumentEvent> events) {
 
 		TextDocumentSyncKind changePolicy = serverSyncPolicy.getChange();
 
@@ -442,10 +441,10 @@ public final class AdaLSPServer {
 		// Get the changed document from the first event and
 		// check that all events are for the same document
 
-		final Document changedDocument = events.get(0).getDocument();
+		final Document changedDocument = events.get(0).getDocumentEvent().getDocument();
 
 		if (events.stream()
-			.map(DocumentEvent::getDocument)
+			.map((event) -> {return event.getDocumentEvent().getDocument();})
 			.anyMatch(document -> !documentsRepresentSameFile(document, changedDocument)))
 		{
 			LOGGER.error("Trying to send a `textDocument/didChange` notification " +
