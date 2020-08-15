@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.adacore.adaintellij.misc.cache.CacheKey;
 import com.adacore.adaintellij.misc.cache.Cacher;
+import com.intellij.codeInsight.AutoPopupController;
 import com.intellij.codeInsight.folding.impl.CodeFoldingManagerImpl;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -92,6 +93,10 @@ public final class DocumentChangeConsumerOperation
 				CodeFoldingManagerImpl
 					.getInstance(scheduler.getProject())
 					.scheduleAsyncFoldingUpdate(editor);
+
+				AutoPopupController.getInstance(
+					scheduler.getProject()
+				).scheduleAutoPopup(editor);
 			}
 		}));
 		

@@ -1,22 +1,24 @@
-package com.adacore.adaintellij.misc;
+package com.adacore.adaintellij.analysis.semantic.completion;
 
 import com.adacore.adaintellij.lsp.AdaLSPDriver;
 import com.adacore.adaintellij.project.AdaProject;
 import com.adacore.adaintellij.project.GPRFileManager;
+import com.intellij.codeInsight.lookup.impl.LookupImpl;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.testFramework.LightProjectDescriptor;
-import com.intellij.testFramework.fixtures.*;
+import com.intellij.testFramework.fixtures.CompletionAutoPopupTester;
+import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase;
+import junit.framework.Assert;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-public class AdaFoldingBuilderTest extends LightJavaCodeInsightFixtureTestCase {
-
-    Module myModule;
+public class AdaCompletionContributorTest extends LightJavaCodeInsightFixtureTestCase {
 
     @Override
     protected String getTestDataPath() {
@@ -29,16 +31,37 @@ public class AdaFoldingBuilderTest extends LightJavaCodeInsightFixtureTestCase {
         super.setUp();
     }
 
-    @Test
-    public void testFolds()
-    {
-        myFixture.copyFileToProject( "/project.gpr");
+    //@Test
+    public void noEmptyPrefix() {
 
-        myFixture.getProject().getComponent(AdaProject.class).projectOpened();
-        myFixture.getProject().getComponent(AdaLSPDriver.class).projectOpened();
-        myFixture.getProject().getComponent(GPRFileManager.class).projectOpened();
+        //VirtualFile file = myFixture.copyFileToProject( "/empty.ads");
+//        myFixture.copyFileToProject( "/project.gpr");
+//
+//        myFixture.getProject().getComponent(AdaProject.class).projectOpened();
+//        myFixture.getProject().getComponent(AdaLSPDriver.class).projectOpened();
+//        myFixture.getProject().getComponent(GPRFileManager.class).projectOpened();
+//
+//        myFixture.configureByFile("empty.ads");
+//
+//        CompletionAutoPopupTester tester = new CompletionAutoPopupTester(myFixture);
+//        tester.runWithAutoPopupEnabled(() -> {
+//
+//            tester.typeWithPauses("ob");
+//            tester.joinCompletion();
+//            LookupImpl lookup = tester.getLookup();
+//            Integer one = 1;
+//        });
 
-        myFixture.testFoldingWithCollapseStatus(getTestDataPath() + "/folding-test-data.ads");
+//        Assert.assertEquals("expected no completions for an empty file",
+//            0, myFixture.completeBasic().length);
+//
+//        // whitespace suffix
+//        myFixture.configureByText("main.ads", "");
+//        myFixture.type(" ");
+//        Assert.assertEquals("expected no completions after whitespace",
+//            0, myFixture.completeBasic().length);
+
+
     }
 
     @NotNull
