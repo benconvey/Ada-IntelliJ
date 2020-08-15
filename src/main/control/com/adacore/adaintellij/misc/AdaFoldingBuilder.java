@@ -26,28 +26,26 @@ public class AdaFoldingBuilder extends FoldingBuilderEx implements DumbAware {
         Project project = root.getProject();
         PsiFile psiFile = root.getContainingFile();
 
-        AdaLSPDriver driver = project.getComponent(AdaLSPDriver.class);
-
-        MergingUpdateQueue queue = project
-            .getComponent(AdaLSPDriver.class)
-            .getDocumentChangeConsumerOperation()
-            .getQueue();
-
-        if (! queue.isEmpty() || queue.isFlushing()) {
-            Editor editor = EditorFactory.getInstance().getEditors(document, project)[0];
-            FoldingModel foldingModel = editor.getFoldingModel();
-            FoldRegion[] foldRegions = foldingModel.getAllFoldRegions();
-            List<FoldingDescriptor> descriptors =  this.buildFoldingDescriptorsFromExistingFoldRegions(
-                foldRegions,
-                document,
-                root
-            );
-
-            return descriptors.toArray(
-                new FoldingDescriptor[descriptors.size()]
-            );
-
-        }
+//        MergingUpdateQueue queue = project
+//            .getComponent(AdaLSPDriver.class)
+//            .getDocumentChangeConsumerOperation()
+//            .getQueue();
+//
+//        if (! queue.isEmpty() || queue.isFlushing()) {
+//            Editor editor = EditorFactory.getInstance().getEditors(document, project)[0];
+//            FoldingModel foldingModel = editor.getFoldingModel();
+//            FoldRegion[] foldRegions = foldingModel.getAllFoldRegions();
+//            List<FoldingDescriptor> descriptors =  this.buildFoldingDescriptorsFromExistingFoldRegions(
+//                foldRegions,
+//                document,
+//                root
+//            );
+//
+//            return descriptors.toArray(
+//                new FoldingDescriptor[descriptors.size()]
+//            );
+//
+//        }
 
         List<FoldingRange> foldingRanges = AdaLSPDriver.getServer(project)
             .foldingRange(
