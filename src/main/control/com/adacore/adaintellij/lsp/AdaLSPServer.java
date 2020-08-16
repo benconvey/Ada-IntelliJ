@@ -634,6 +634,9 @@ public final class AdaLSPServer {
 
 		params.setTextDocument(new TextDocumentIdentifier(documentUri));
 		params.setPosition(position);
+		params.setContext(new CompletionContext(
+			CompletionTriggerKind.Invoked
+		));
 
 		Either<List<CompletionItem>, CompletionList> completionResult =
 			documentRequest("textDocument/completion", documentUri,

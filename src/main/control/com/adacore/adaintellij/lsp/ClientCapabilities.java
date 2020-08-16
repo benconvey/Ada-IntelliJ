@@ -135,7 +135,7 @@ final class ClientCapabilities {
 
 			}
 
-			static final boolean CONTEXT_SUPPORT = false;
+			static final boolean CONTEXT_SUPPORT = true;
 
 		}
 
