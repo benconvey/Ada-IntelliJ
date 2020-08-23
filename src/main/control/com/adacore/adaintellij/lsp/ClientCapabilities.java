@@ -114,7 +114,7 @@ final class ClientCapabilities {
 
 				private CompletionItem() {}
 
-				static final boolean SNIPPET_SUPPORT = false;
+				static final boolean SNIPPET_SUPPORT = true;
 
 				static final boolean COMMIT_CHARACTERS_SUPPORT = false;
 

@@ -503,6 +503,10 @@ public final class AdaLSPDriver implements ProjectComponent {
 			java.lang.management.ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
 
 		params.setProcessId(pid);
+		params.setClientInfo(new ClientInfo(
+			"Ada-IntelliJ",
+			"0.6-dev"
+		));
 		params.setRootUri(project.getBaseDir().getUrl());
 		params.setInitializationOptions(null);
 

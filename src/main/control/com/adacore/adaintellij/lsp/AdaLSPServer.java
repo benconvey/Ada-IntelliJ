@@ -9,7 +9,6 @@ import com.adacore.adaintellij.editor.AdaDocumentEvent;
 import com.intellij.notification.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.editor.event.DocumentEvent;
 import com.intellij.openapi.progress.*;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.*;
@@ -652,7 +651,7 @@ public final class AdaLSPServer {
 	}
 
 	/**
-	 * @see org.eclipse.lsp4j.services.TextDocumentService#definition(TextDocumentPositionParams)
+	 * @see org.eclipse.lsp4j.services.TextDocumentService#definition(DefinitionParams) (TextDocumentPositionParams)
 	 */
 	@Nullable
 	public Location definition(@NotNull String documentUri, @NotNull Position position) {
@@ -661,19 +660,29 @@ public final class AdaLSPServer {
 			return null;
 		}
 
-		final TextDocumentPositionParams params = new TextDocumentPositionParams(
+		final DefinitionParams params = new DefinitionParams(
 			new TextDocumentIdentifier(documentUri), position);
 
-		List<? extends Location> locations =
+		Either<List<? extends Location>, List<? extends LocationLink>> locations =
 			documentRequest("textDocument/definition", documentUri,
 				() -> server.getTextDocumentService().definition(params));
 
-		if (locations == null || locations.size() == 0) { return null; }
+		if (locations == null || this.isEmptyLocation(locations))
+		{
+			return null;
+		}
 
 		// TODO: Decide how to handle multiple locations
-		return locations.get(0);
+		return (Location) locations.get();
 
 	}
+
+	private boolean isEmptyLocation(Either<List<? extends Location>, List<? extends LocationLink>> locations )
+	{
+		return (locations.isLeft() && locations.getLeft().size() == 0) ||
+			(locations.isRight() && locations.getRight().size() == 0);
+	}
+
 
 	/**
 	 * @see org.eclipse.lsp4j.services.TextDocumentService#references(ReferenceParams)
