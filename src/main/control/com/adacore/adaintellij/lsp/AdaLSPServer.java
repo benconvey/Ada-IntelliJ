@@ -654,7 +654,7 @@ public final class AdaLSPServer {
 	 * @see org.eclipse.lsp4j.services.TextDocumentService#definition(DefinitionParams) (TextDocumentPositionParams)
 	 */
 	@Nullable
-	public Location definition(@NotNull String documentUri, @NotNull Position position) {
+	public Either< Location,  LocationLink> definition(@NotNull String documentUri, @NotNull Position position) {
 
 		if (!driver.initialized() || !capabilities.getDefinitionProvider()) {
 			return null;
@@ -673,7 +673,12 @@ public final class AdaLSPServer {
 		}
 
 		// TODO: Decide how to handle multiple locations
-		return (Location) locations.get();
+
+		Either< Location,  LocationLink> location = locations.isLeft() ?
+			Either.forLeft(locations.getLeft().get(0)) :
+			Either.forRight(locations.getRight().get(0));
+
+		return location;
 
 	}
 

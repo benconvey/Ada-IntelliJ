@@ -6,6 +6,8 @@ import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.util.IncorrectOperationException;
+import org.eclipse.lsp4j.LocationLink;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.jetbrains.annotations.*;
 
 import org.eclipse.lsp4j.Location;
@@ -179,7 +181,7 @@ public final class AdaPsiReference extends AdaPsiElement
 
 		if (lspServer == null) { return null; }
 
-		Location definitionLocation = lspServer.definition(
+		Either<Location, LocationLink> definitionLocation = lspServer.definition(
 			documentUri, LSPUtils.offsetToPosition(document, getStartOffset()));
 
 		// If no valid result was returned, cash the result
@@ -193,7 +195,11 @@ public final class AdaPsiReference extends AdaPsiElement
 		// Get the definition's file
 
 		VirtualFile definitionVirtualFile =
-			findFileByUrlString(definitionLocation.getUri());
+			findFileByUrlString(
+				definitionLocation.isLeft() ?
+					definitionLocation.getLeft().getUri() :
+					definitionLocation.getRight().getTargetUri()
+			);
 
 		if (definitionVirtualFile == null) { return null; }
 
@@ -207,7 +213,9 @@ public final class AdaPsiReference extends AdaPsiElement
 		PsiElement definition = definitionPsiFile.findElementAt(
 			LSPUtils.positionToOffset(
 				definitionDocument,
-				definitionLocation.getRange().getStart()
+				definitionLocation.isLeft() ?
+					definitionLocation.getLeft().getRange().getStart() :
+					definitionLocation.getRight().getTargetRange().getStart()
 			)
 		);
 
